@@ -7,7 +7,7 @@ output:
     toc: yes
 ---
 <center>
-![**The Most Adorable Undead Creature!**](https://img.freepik.com/premium-vector/zombie-monkey-want-candy-cute-halloween-cartoon-illustration_290315-6354.jpg)
+![**The Most Adorable Undead Creature!!**](https://img.freepik.com/premium-vector/zombie-monkey-want-candy-cute-halloween-cartoon-illustration_290315-6354.jpg)
 <div align="left">
 
 ```{r setup, include=FALSE}
