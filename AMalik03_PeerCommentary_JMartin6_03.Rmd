@@ -151,7 +151,7 @@ for (variable_name in variables_to_plot) {
   hist(data[[variable_name]], col = "royalblue4", main = paste("Histogram of", variable_name), xlab = variable_name)
 
 }  
-#I like the use of the for loop to plot everything.Very nice.
+#I like the use of the for loop to plot everything. Very nice.
 ```
 Quantitative variables that seem to be drawn from a normal distribution include height, weight, and age. Quantitative variables that do not seem to be drawn from a normal distribution include number of zombies killed and years of education. Based on the Q-Q plots and histograms they both skew left and are drawn from a Poisson distribution. 
 
