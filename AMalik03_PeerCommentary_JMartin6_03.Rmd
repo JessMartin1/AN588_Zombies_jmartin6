@@ -12,12 +12,14 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(curl)
 ```
 
 **Load Relevant Dataset**
 ```{R, Dataset}
-f <- "~/Documents/AN588-Fall2023/AN588_Zombies_jmartin6/AN588_Zombies_jmartin6"
-#AM: I believe this only works with tab separated data(txt, or tsv). Also this does not work on my computer because the path/location of the file is not the same and you're pulling it from your local storage. had to change this for it to work for me.
+
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN588_Fall23/zombies.csv")
+#AM: I believe your method of loading a file only works with tab separated data(txt, or tsv). Also, this does not work on my computer because the path/location of the file is not the same and you're pulling it from your local storage. had to change this for it to work for me..
 ```
 
 ## Question #1
@@ -25,7 +27,7 @@ f <- "~/Documents/AN588-Fall2023/AN588_Zombies_jmartin6/AN588_Zombies_jmartin6"
 
 ```{R, Question 1}
 # Load the data from the CSV file
-f <- read.csv("zombies.csv") #AM: This isn't working on my end. I had to change this to read variable "f"
+f <- read.csv(f) #AM: This isn't working on my end. I had to change this to read variable "f"
 # Create a population SD function
 pop_sd <- function (data, mean) { 
   sqrt(sum((data-mean)^2)/length(data))
@@ -34,7 +36,7 @@ pop_sd <- function (data, mean) {
 #AM: I also used a function, but I only place the vector as my input and calculated the mean inside the function to make it easier and more efficient
 mean_height <- mean(f$height)
 print(mean_height)
-(height_sd<-pop_sd(f$age, mean_height)) #AM: There is an error here, you're pulling on the age vector to computate height_sd
+(height_sd<-pop_sd(f$age, mean_height)) #AM: There is an error here, you're pulling on the age vector to compute height_sd
 mean_weight <- mean(f$weight)
 print(mean_weight)
 (weight_sd<-pop_sd(f$weight, mean_weight))
@@ -47,6 +49,7 @@ print(mean_zombies_killed)
 mean_years_of_education <- mean(f$years_of_education)
 print(mean_years_of_education)
 (years_of_education_sd<-pop_sd(f$years_of_education, mean_years_of_education))
+#I did my code the samw way
 ```
 ## Question #2
 **Use {ggplot} to make boxplots of each of these variables by gender.**
@@ -89,14 +92,15 @@ ggplot(f, aes(x = gender, y = years_of_education, fill = gender)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(legend.title.align=0.5) 
 ```
-AM: I love the colors and the decoration. Mine is a bit boring right now because I wanted to make sure I had it write before I added more code or else I would get overwhelmed. But other than that I coded the same way!
+<br>AM: I love the colors and the decoration. Mine is a bit boring right now because I wanted to make sure I had it write before I added more code or else I would get overwhelmed. But other than that I coded the same way!
 ## Question #3
 **Use {ggplot} to make scatterplots of height and weight in relation to age. Do these variables seem to be related? In what way?**
 
 ```{R, Question 3}
 
 # Load the data from the CSV file
-f <- read.csv("zombies.csv") #AM: I'm not familiar with the method of loading the file the way you did, but I dont believe assigning "f"  as the read csv s necesary for every new chunk
+
+#AM: I'm not familiar with the method of loading the file the way you did, but I dont believe assigning "f <- read.csv(f)"  as the read csv s necesary for every new chunk(I deleted it because it was messing with my knit)
 
 # Scatterplot of age vs. height
 ggplot(f, aes(x = age, y = height, color = age)) + #Add color
@@ -121,7 +125,6 @@ Yes! These variables appear to be related, as evidenced by the positive correlat
 
 ```{R, Question 4}
 # Load the data from the CSV file
-f <- read.csv("zombies.csv")
 
 # Input variables to create Q-Q plots
 variables_to_plot <- c("height", "weight", "zombies_killed", "years_of_education", "age")
@@ -136,7 +139,7 @@ for (variable_name in variables_to_plot) {
 }
 
 # Load the data from the CSV file
-data <- read.csv("zombies.csv")
+data <- f
 
 # Input variables to create histograms 
 variables_to_plot <- c("height", "weight", "age", "zombies_killed", "years_of_education")
@@ -148,7 +151,7 @@ for (variable_name in variables_to_plot) {
   hist(data[[variable_name]], col = "royalblue4", main = paste("Histogram of", variable_name), xlab = variable_name)
 
 }  
-#AM: this doesn't work on my end I get the error "y is empty or has only NAs". I tried changing a few things but I'm not sure how to fix it for myself. Theoretically your code makes sense, I did it relatively the same way as you.
+#I like the use of the for loop to plot everything.Very nice.
 ```
 Quantitative variables that seem to be drawn from a normal distribution include height, weight, and age. Quantitative variables that do not seem to be drawn from a normal distribution include number of zombies killed and years of education. Based on the Q-Q plots and histograms they both skew left and are drawn from a Poisson distribution. 
 
@@ -168,7 +171,7 @@ lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower 
 upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
 ci <- c(lower, upper)
 ci
-#AM: I like this way of doing it. I enjoyed making functions so much I made an entire fucntion without using qqnorm to find ci :/
+#AM: I like this way of doing it. I enjoyed making functions so much I made an entire function without using qqnorm to find ci, which was a lot of work :/
 ```
 
 ```{R, Question 5 (Weight)}
@@ -241,7 +244,7 @@ quantile(set, c(0.025, 0.975)) # Confidence Intervals by Bootstrapping
 poisson.test(length(s), conf.level = 0.95) # Confidence Intervals by a Poisson Test
 ```
 
-AM: You made different samples of each one, so none of the calculated data is related to each other. You only need to use the sample() function once, when you use it again you create a new sample of 30. Make a variable and set is to the sample fucntion(s <-sample(. . .) and use the variable "s" for the mean/sd/sem). I think he also wanted us to use the pop_sd function we made here as well. I realized I did this problem wrong and should use a different CI for the data that is not normally distributed.
+AM: You made different samples of each one, so none of the calculated data is related to each other. You only need to use the sample() function once, when you use it again you create a new sample of 30. Make a variable and set is to the sample function(s <-sample(. . .) and use the variable "s" for the mean/sd/sem). I think he also wanted us to use the pop_sd function we made here as well. I realized I did this problem wrong and should use a different CI for the data that is not normally distributed.
 
 ## Question #6
 **Now draw 99 more random samples of 30 zombie apocalypse survivors, and calculate the mean for each variable for each of these samples. Together with the first sample you drew, you now have a set of 100 means for each variable (each based on 30 observations), which constitutes a sampling distribution for each variable. What are the means and standard deviations of this distribution of means for each variable? How do the standard deviations of means compare to the standard errors estimated in [5]? What do these sampling distributions look like (a graph might help here)? Are they normally distributed? What about for those variables that you concluded were not originally drawn from a normal distribution?**
@@ -319,5 +322,5 @@ The standard deviations of means is similar to the standard errors estimated in 
 4. I often find myself making minor typos in my code. I should probably stop typing everything out and copy/paste more!
 5. So many good zombie related GIFs, videos, and photos, so hard to choose just one!
 
-## Peer Commentary:
-A lot of our code is similar. I had issues with knitting your markdown document. It is tailored to your computer but not others. I also had difficulty with loading in you Q4 chunk for reasons that I could not fix. I also make minor typos in my code! I have a bad habit of rewriting code which I should fix as well. Your code helped me a lot in figuring out how to change my code for the better. I realized I misread some of the questions and have to redo them. I like your use of par(mfrow), I always think it's cool to use to show figures. I also love your aesthetics for the tables, very nice shades of blue. Love your picture!
+## Peer Commentary: Allister Malik
+A lot of our code is similar. I had issues with knitting your markdown document. It is tailored to your computer but not others. I had to make some minor adjustments I also make minor typos in my code! I have a bad habit of rewriting code which I should fix as well. Your code helped me a lot in figuring out how to change my code for the better. I realized I misread some of the questions and have to redo them. I like your use of par(mfrow), I always think it's cool to use to show figures in one viewing window. I also love your aesthetics for the tables, very nice shades of blue were used. Love your picture!
