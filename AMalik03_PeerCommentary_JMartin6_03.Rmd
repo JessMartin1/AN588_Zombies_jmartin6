@@ -1,0 +1,326 @@
+---
+title: "AN588 Homework 3 (Fall 2023)" 
+author: "Jess Martin"
+date: "10/11/2023"
+output: 
+    rmdformats::readthedown:
+    toc: yes
+---
+<center>
+![**The Most Adorable Undead Creature!**](https://img.freepik.com/premium-vector/zombie-monkey-want-candy-cute-halloween-cartoon-illustration_290315-6354.jpg)
+<div align="left">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(curl)
+```
+
+**Load Relevant Dataset**
+```{R, Dataset}
+
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN588_Fall23/zombies.csv")
+#AM: I believe your method of loading a file only works with tab separated data(txt, or tsv). Also, this does not work on my computer because the path/location of the file is not the same and you're pulling it from your local storage. had to change this for it to work for me..
+```
+
+## Question #1
+**Calculate the population mean and standard deviation for each quantitative random variable (height, weight, age, number of zombies killed, and years of education). NOTE: You will not want to use the built in var() and sd() commands as these are for samples.**
+
+```{R, Question 1}
+# Load the data from the CSV file
+f <- read.csv(f) #AM: This isn't working on my end. I had to change this to read variable "f"
+# Create a population SD function
+pop_sd <- function (data, mean) { 
+  sqrt(sum((data-mean)^2)/length(data))
+}
+# Generate the means and standard deviation for each variable
+#AM: I also used a function, but I only place the vector as my input and calculated the mean inside the function to make it easier and more efficient
+mean_height <- mean(f$height)
+print(mean_height)
+(height_sd<-pop_sd(f$age, mean_height)) #AM: There is an error here, you're pulling on the age vector to compute height_sd
+mean_weight <- mean(f$weight)
+print(mean_weight)
+(weight_sd<-pop_sd(f$weight, mean_weight))
+mean_age <- mean(f$age)
+print(mean_age)
+(age_sd<-pop_sd(f$age, mean_age))
+mean_zombies_killed <- mean(f$zombies_killed)
+print(mean_zombies_killed)
+(zombies_killed_sd<-pop_sd(f$zombies_killed, mean_zombies_killed))
+mean_years_of_education <- mean(f$years_of_education)
+print(mean_years_of_education)
+(years_of_education_sd<-pop_sd(f$years_of_education, mean_years_of_education))
+#I did my code the samw way
+```
+## Question #2
+**Use {ggplot} to make boxplots of each of these variables by gender.**
+
+```{r, warning=FALSE}
+# Load the ggplot library
+library(ggplot2)
+# Boxplot for height
+ggplot(f, aes(x = gender, y = height, fill = gender)) + #Add color
+  geom_boxplot() +
+  labs(title = "Boxplot of Height by Gender") +
+  theme(plot.title = element_text(hjust = 0.5)) + # Center the title
+  theme(legend.title.align=0.5) # Center the legend title
+ 
+# Boxplot for weight
+ggplot(f, aes(x = gender, y = weight, fill = gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Weight by Gender") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(legend.title.align=0.5) 
+
+# Boxplot for age
+ggplot(f, aes(x = gender, y = age, fill = gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Age by Gender") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(legend.title.align=0.5) 
+  
+# Boxplot for number of zombies killed
+ggplot(f, aes(x = gender, y = zombies_killed, fill = gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Number of Zombies Killed by Gender") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.title.align=0.5) 
+  
+# Boxplot for years of education
+ggplot(f, aes(x = gender, y = years_of_education, fill = gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Years of Education by Gender") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.title.align=0.5) 
+```
+<br>AM: I love the colors and the decoration. Mine is a bit boring right now because I wanted to make sure I had it write before I added more code or else I would get overwhelmed. But other than that I coded the same way!
+## Question #3
+**Use {ggplot} to make scatterplots of height and weight in relation to age. Do these variables seem to be related? In what way?**
+
+```{R, Question 3}
+
+# Load the data from the CSV file
+
+#AM: I'm not familiar with the method of loading the file the way you did, but I dont believe assigning "f <- read.csv(f)"  as the read csv s necesary for every new chunk(I deleted it because it was messing with my knit)
+
+# Scatterplot of age vs. height
+ggplot(f, aes(x = age, y = height, color = age)) + #Add color
+  geom_point() +
+  labs(title = "Scatterplot of Age vs. Height")+
+  theme(plot.title = element_text(hjust = 0.5)) + # Center the title
+  theme(legend.title.align=0.5) # Center the legend title
+
+# Scatterplot of age vs. weight
+ggplot(f, aes(x = age, y = weight, color = age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age vs. Weight")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.title.align=0.5) 
+```
+Yes! These variables appear to be related, as evidenced by the positive correlation in both scatterplots. As age increases, there is a corresponding increase in both height and weight. 
+<br>AM: I coded the samae way but made it in one line because its easier for me to reat, but when I add colors I'll probably need to separate the line like you did here. I said that there was not relationship between age and weight because I did not really see a significatn trend between the two variables.
+
+
+## Question #4
+**Using histograms and Q-Q plots, check whether the quantitative variables seem to be drawn from a normal distribution. Which seem to be and which do not (hint: not all are drawn from the normal distribution)? For those that are not normal, can you determine from which common distribution they are drawn?**
+
+```{R, Question 4}
+# Load the data from the CSV file
+
+# Input variables to create Q-Q plots
+variables_to_plot <- c("height", "weight", "zombies_killed", "years_of_education", "age")
+
+# Create Q-Q plots for each variable with variable names on the x-axis
+par(mfrow = c(2, 3))  # Arrange plots in a 2x3 grid
+
+for (variable_name in variables_to_plot) {
+  # Create a Q-Q plot for each variable
+  qqnorm(f[[variable_name]], main = paste("Q-Q Plot of", variable_name))
+  qqline(f[[variable_name]], col = "steelblue1")
+}
+
+# Load the data from the CSV file
+data <- f
+
+# Input variables to create histograms 
+variables_to_plot <- c("height", "weight", "age", "zombies_killed", "years_of_education")
+
+par(mfrow = c(2, 3))  # Arrange plots in a 2x3 grid
+
+for (variable_name in variables_to_plot) {
+  # Create a histogram for each variable
+  hist(data[[variable_name]], col = "royalblue4", main = paste("Histogram of", variable_name), xlab = variable_name)
+
+}  
+#I like the use of the for loop to plot everything. Very nice.
+```
+Quantitative variables that seem to be drawn from a normal distribution include height, weight, and age. Quantitative variables that do not seem to be drawn from a normal distribution include number of zombies killed and years of education. Based on the Q-Q plots and histograms they both skew left and are drawn from a Poisson distribution. 
+
+AM: I agree with your conclusion! I did relatively the same thing, just without the for loop.
+## Question #5
+**Now use the sample() function to sample ONE subset of 30 zombie survivors (without replacement) from this population and calculate the mean and sample standard deviation for each variable. Also estimate the standard error for each variable, and construct the 95% confidence interval for each mean. Note that for the variables that are not drawn from the normal distribution, you may need to base your estimate of the CIs on slightly different code than for the normal.**
+
+```{R, Question 5 (Height)}
+s <- sample(f$height, size = 30, replace = FALSE) 
+m <- mean(s)
+m
+sd <- sd(s)
+sd
+sem <- sd(s)/sqrt(length(s)) #AM: Using sd finds the sample standard deviation, so you found the sample sd of the sample. Use you pop_sd function here to find the sd of this sample of 30
+sem
+lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci <- c(lower, upper)
+ci
+#AM: I like this way of doing it. I enjoyed making functions so much I made an entire function without using qqnorm to find ci, which was a lot of work :/
+```
+
+```{R, Question 5 (Weight)}
+s <- sample(f$weight, size = 30, replace = FALSE)
+m <- mean(s)
+m
+sd <- sd(s)
+sd
+sem <- sd(s)/sqrt(length(s))
+sem
+lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci <- c(lower, upper)
+ci
+```
+
+```{R, Question 5 (Age)}
+s <- sample(f$age, size = 30, replace = FALSE)
+m <- mean(s)
+m
+sd <- sd(s)
+sd
+sem <- sd(s)/sqrt(length(s))
+sem
+lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci <- c(lower, upper)
+ci
+```
+
+```{R, Question 5 (Zombies Killed)}
+s <- sample(f$zombies_killed, size = 30, replace = FALSE, prob = NULL)
+m <- mean(s)
+m
+sd <- sd(s)
+sd
+sem <- sd(s)/sqrt(length(s))
+sem
+set <- NULL  # sets up a dummy variable to hold our 1000 simulations
+n <- 30 
+for (i in 1:1000) {
+    set[i] <- mean(sample(s, n, replace = TRUE))
+}
+
+quantile(set)
+
+quantile(set, c(0.025, 0.975)) # Confidence Intervals by Bootstrapping
+
+poisson.test(length(s), conf.level = 0.95) # Confidence Intervals by a Poisson Test
+```
+
+```{R, Question 5 (Years of Education)}
+s <- sample(f$years_of_education, size = 30, replace = FALSE)
+m <- mean(s)
+m
+sd <- sd(s)
+sd
+sem <- sd(s)/sqrt(length(s)) #alternatively you can use sd since its a preset variable
+sem
+set <- NULL  # sets up a dummy variable to hold our 1000 simulations
+n <- 30
+for (i in 1:100) {
+    set[i] <- mean(sample(s, n, replace = TRUE))
+}
+
+quantile(set)
+
+quantile(set, c(0.025, 0.975)) # Confidence Intervals by Bootstrapping
+
+poisson.test(length(s), conf.level = 0.95) # Confidence Intervals by a Poisson Test
+```
+
+AM: You made different samples of each one, so none of the calculated data is related to each other. You only need to use the sample() function once, when you use it again you create a new sample of 30. Make a variable and set is to the sample function(s <-sample(. . .) and use the variable "s" for the mean/sd/sem). I think he also wanted us to use the pop_sd function we made here as well. I realized I did this problem wrong and should use a different CI for the data that is not normally distributed.
+
+## Question #6
+**Now draw 99 more random samples of 30 zombie apocalypse survivors, and calculate the mean for each variable for each of these samples. Together with the first sample you drew, you now have a set of 100 means for each variable (each based on 30 observations), which constitutes a sampling distribution for each variable. What are the means and standard deviations of this distribution of means for each variable? How do the standard deviations of means compare to the standard errors estimated in [5]? What do these sampling distributions look like (a graph might help here)? Are they normally distributed? What about for those variables that you concluded were not originally drawn from a normal distribution?**
+
+```{R, Question 6}
+x <- NULL # dummy variable to hold each sample
+for (i in 1:100) {
+    sample_data <- sample(f$height, size = 30, replace = FALSE, prob = NULL)
+    x[i] <- mean(sample_data)
+}
+
+mean_height <- mean(x)
+print (mean_height)
+sd_height <- sd(x)
+print (sd_height)
+par(mfrow = c(2, 3))  # Arrange plots in a 2x3 grid
+hist(x, main = "Height (100 samples)", xlab = "Height", col = "royalblue4")
+
+x <- NULL
+for (i in 1:100) {
+    sample_data <- sample(f$weight, size = 30, replace = FALSE, prob = NULL)
+    x[i] <- mean(sample_data)
+}
+
+mean_weight <- mean(x)
+print (mean_weight)
+sd_weight <- sd(x)
+print (sd_weight)
+hist(x, main = "Weight (100 samples)", xlab = "Weight", col = "royalblue4")
+
+x <- NULL
+for (i in 1:100) {
+    sample_data <- sample(f$age, size = 30, replace = FALSE, prob = NULL)
+    x[i] <- mean(sample_data)
+}
+
+mean_age <- mean(x)
+print (mean_age)
+sd_age <- sd(x)
+print (sd_age)
+hist(x, main = "Age (100 samples)", xlab = "Age", col = "royalblue4")
+
+x <- NULL
+for (i in 1:100) {
+    sample_data <- sample(f$zombies_killed, size = 30, replace = FALSE, prob = NULL)
+    x[i] <- mean(sample_data)
+}
+
+mean_zombies_killed <- mean(x)
+print (mean_zombies_killed)
+sd_zombies_killed <- sd(x)
+print (sd_zombies_killed)
+hist(x, main = "Zombies Killed (100 samples)", xlab = "Zombies Killed", col = "royalblue4")
+
+x <- NULL
+for (i in 1:100) {
+    sample_data <- sample(f$years_of_education, size = 30, replace = FALSE, prob = NULL)
+    x[i] <- mean(sample_data)
+}
+
+mean_years_of_education <- mean(x)
+print (mean_years_of_education)
+sd_years_of_education <- sd(x)
+print (sd_years_of_education)
+hist(x, main = "Years of Education (100 samples)", xlab = "Years of Education", col = "royalblue4")
+```
+
+The standard deviations of means is similar to the standard errors estimated in Question #5. The sampling distributions look normal, including for the previously non-normally distributed variables (i.e., zombies killed and years of education). Note: I believe that height, weight, and age follow a normal distribution, although there may be a subtle deviation (slightly skew right) when compared to the previous histograms.
+
+## Challenges: Homework #3
+
+1. Initially, I encountered some difficulties while attempting to install the rmdformat package for the readthedown theme in this assignment. After multiple attempts, it unexpectedly started working, though I'm unsure about the underlying reasons.
+2. Regarding Question #5, for the variables that do not follow a normal distribution, I'm still uncertain about which code to base my CI estimates on. I made attempts using two methods: bootstrapping and the Poisson test from Module 07.
+3. In Question #6, I found myself unsure about the necessary steps to complete this problem until I referred to Module 08 and noticed the example provided in the section titled "Sample Distributions versus Population Distributions."
+4. I often find myself making minor typos in my code. I should probably stop typing everything out and copy/paste more!
+5. So many good zombie related GIFs, videos, and photos, so hard to choose just one!
+
+## Peer Commentary: Allister Malik
+A lot of our code is similar. I had issues with knitting your markdown document. It is tailored to your computer but not others. I had to make some minor adjustments I also make minor typos in my code! I have a bad habit of rewriting code which I should fix as well. Your code helped me a lot in figuring out how to change my code for the better. I realized I misread some of the questions and have to redo them. I like your use of par(mfrow), I always think it's cool to use to show figures in one viewing window. I also love your aesthetics for the tables, very nice shades of blue were used. Love your picture!
